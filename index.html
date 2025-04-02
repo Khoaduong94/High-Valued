@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tra Cứu Thông Tin Công Ty</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #taxCode {
+            padding: 10px;
+            width: 250px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        #companyInfo {
+            margin-top: 30px;
+            font-weight: normal;
+            font-size: 18px;
+        }
+
+        #companyInfo p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tra Cứu Thông Tin Công Ty</h1>
+    <input type="text" id="taxCode" placeholder="Nhập mã số thuế">
+    <button onclick="traCuu()">Tra Cứu</button>
+    <div id="companyInfo">Đang tải dữ liệu công ty...</div>
+
+    <script>
+        let companyData = [];
+
+        // Lấy dữ liệu từ Google Sheet
+        fetch('https://opensheet.elk.sh/1H22WcEhjG8ocxT9ZZAP1Lbl6vQGvVLOsSqMoV7tlDm4/Sheet1')
+            .then(response => response.json())
+            .then(data => {
+                companyData = data;
+                document.getElementById('companyInfo').textContent = 'Vui lòng nhập mã số thuế để tra cứu.';
+            })
+            .catch(error => {
+                document.getElementById('companyInfo').textContent = 'Không thể tải dữ liệu từ Google Sheet.';
+                console.error(error);
+            });
+
+        function traCuu() {
+            const taxCode = document.getElementById('taxCode').value.trim();
+            const result = companyData.find(company => company["TAX CODE"]?.trim() === taxCode);
+
+            if (result) {
+                document.getElementById('companyInfo').innerHTML = `
+                    <p><strong>Tên công ty:</strong> ${result["COMPANY NAME"]}</p>
+                    <p><strong>Loại hình:</strong> ${result["TYPE"]}</p>
+                `;
+            } else {
+                document.getElementById('companyInfo').innerHTML = '<p>Không tìm thấy thông tin công ty</p>';
+            }
+        }
+
+        // Cho phép tra cứu bằng phím Enter
+        document.getElementById('taxCode').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                traCuu();
+            }
+        });
+    </script>
+</body>
+</html>
